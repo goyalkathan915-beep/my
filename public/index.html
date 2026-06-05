@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💍 Will You Love Me?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --pink: #f472b6;
+      --deep-pink: #ec4899;
+      --rose: #fb7185;
+      --lavender: #c4b5fd;
+      --purple: #a78bfa;
+      --glass: rgba(255,255,255,0.12);
+      --glass-border: rgba(255,255,255,0.25);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: #0d0010;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1a0020; }
+    ::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 3px; }
+
+    #particle-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+
+    section { position: relative; z-index: 1; }
+
+    /* ── MUSIC TOGGLE ── */
+    .music-btn {
+      position: fixed; top: 1.2rem; right: 1.2rem;
+      z-index: 9999;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      width: 46px; height: 46px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      color: #fff;
+    }
+    .music-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(244,114,182,0.5); }
+    .music-btn.playing { animation: spin-slow 4s linear infinite; }
+
+    /* ── PAGE TRANSITIONS ── */
+    .page-enter { animation: pageFadeIn 0.8s cubic-bezier(0.23,1,0.32,1) forwards; }
+    .page-exit  { animation: pageFadeOut 0.5s ease forwards; }
+
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: scale(0.97) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes pageFadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to   { opacity: 0; transform: scale(1.03); }
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE 1 — LANDING
+    ══════════════════════════════════════════ */
+    .landing {
+      height: 100vh;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+      background: radial-gradient(ellipse at 50% 30%, #4c0080 0%, #1e0030 45%, #0d0010 100%);
+    }
+
+    .landing-hearts {
+      font-size: 3rem;
+      animation: float 3s ease-in-out infinite;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+
+    .landing h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.6rem, 8vw, 5.5rem);
+      background: linear-gradient(135deg, #fff 0%, var(--lavender) 40%, var(--pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 2.8rem;
+      animation: fadeUp 1s 0.3s ease both;
+      text-shadow: none;
+      filter: drop-shadow(0 0 30px rgba(244,114,182,0.35));
+    }
+
+    .landing-buttons {
+      display: flex;
+      gap: 1.4rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 1s 0.7s ease both;
+    }
+
+    .btn-yes-main {
+      padding: 1rem 2.8rem;
+      border-radius: 50px; border: none;
+      cursor: pointer; font-size: 1.1rem; font-weight: 700;
+      font-family: 'Lato', sans-serif;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      box-shadow: 0 0 30px rgba(34,197,94,0.5);
+      transition: transform 0.25s, box-shadow 0.25s;
+      letter-spacing: 0.5px;
+      animation: pulse-green 2s 1.5s ease infinite;
+    }
+    .btn-yes-main:hover {
+      transform: scale(1.08) translateY(-3px);
+      box-shadow: 0 0 55px rgba(34,197,94,0.8);
+    }
+
+    .btn-no-main {
+      padding: 1rem 2.8rem;
+      border-radius: 50px; border: none;
+      cursor: pointer; font-size: 1.1rem; font-weight: 700;
+      font-family: 'Lato', sans-serif;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(239,68,68,0.4);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), left 0.4s cubic-bezier(0.34,1.56,0.64,1), top 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
+
+    .btn-no-main.floating {
+      position: fixed;
+      z-index: 9990;
+    }
+
+    /* ── COURTSHIP SCREEN ── */
+    .courtship-screen {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+      background: radial-gradient(ellipse at 50% 40%, #4c0080 0%, #1e0030 50%, #0d0010 100%);
+    }
+
+    .courtship-illustration {
+      margin-bottom: 1.8rem;
+      animation: fadeUp 0.9s 0.1s ease both;
+    }
+
+    .courtship-screen h2 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      background: linear-gradient(135deg, #fff, var(--lavender), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.9s 0.3s ease both;
+    }
+
+    .courtship-screen p {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      color: rgba(255,255,255,0.8);
+      max-width: 520px; line-height: 1.7;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.9s 0.5s ease both;
+    }
+
+    .btn-view-more {
+      padding: 1rem 2.8rem;
+      border-radius: 50px; border: none;
+      cursor: pointer; font-size: 1.05rem; font-weight: 700;
+      font-family: 'Lato', sans-serif;
+      background: linear-gradient(135deg, var(--deep-pink), var(--purple));
+      color: #fff;
+      box-shadow: 0 0 35px rgba(236,72,153,0.55);
+      transition: transform 0.25s, box-shadow 0.25s;
+      animation: fadeUp 0.9s 0.7s ease both, pulse-glow 2s 1.5s infinite;
+      letter-spacing: 0.5px;
+    }
+    .btn-view-more:hover {
+      transform: scale(1.08) translateY(-3px);
+      box-shadow: 0 0 60px rgba(236,72,153,0.8);
+    }
+
+    /* ── FLOATING HEARTS ── */
+    .floating-heart {
+      position: fixed;
+      pointer-events: none;
+      animation: floatUp linear forwards;
+      z-index: 400;
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE 2 — ROMANTIC CONTENT
+    ══════════════════════════════════════════ */
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      text-align: center;
+      background: linear-gradient(135deg, #fff, var(--lavender));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.8rem;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 1rem;
+      margin-bottom: 3.5rem;
+    }
+
+    /* ── page 2 hero banner ── */
+    .page2-hero {
+      min-height: 60vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 3rem 2rem;
+      background: radial-gradient(ellipse at 50% 0%, #3b0764 0%, #1e0030 40%, #0d0010 100%);
+    }
+    .page2-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 4rem);
+      background: linear-gradient(135deg, #fff, var(--lavender), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      max-width: 700px; line-height: 1.3;
+      animation: fadeUp 1s 0.2s ease both;
+    }
+    .page2-hero p {
+      margin-top: 1rem;
+      color: rgba(255,255,255,0.65);
+      font-size: 1.1rem; max-width: 500px; line-height: 1.7;
+      animation: fadeUp 1s 0.5s ease both;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline-section { background: linear-gradient(180deg, #0d0010 0%, #1a0030 50%, #0d0010 100%); }
+
+    .timeline { position: relative; padding: 1rem 0; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%; top: 0; bottom: 0; width: 2px;
+      background: linear-gradient(to bottom, transparent, var(--pink), var(--lavender), transparent);
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      display: flex;
+      justify-content: flex-end;
+      padding-right: calc(50% + 2.5rem);
+      margin-bottom: 3rem;
+      opacity: 0; transform: translateX(-60px);
+      transition: all 0.7s cubic-bezier(0.23,1,0.32,1);
+    }
+    .timeline-item.right {
+      justify-content: flex-start;
+      padding-right: 0; padding-left: calc(50% + 2.5rem);
+      transform: translateX(60px);
+    }
+    .timeline-item.visible { opacity: 1; transform: translateX(0); }
+
+    .timeline-dot {
+      position: absolute; left: 50%;
+      transform: translateX(-50%);
+      width: 18px; height: 18px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      box-shadow: 0 0 15px var(--pink);
+      border: 3px solid #0d0010; z-index: 2;
+    }
+
+    .timeline-card {
+      background: var(--glass);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 1.5rem; max-width: 380px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .timeline-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(244,114,182,0.2); }
+    .timeline-emoji { font-size: 2.2rem; margin-bottom: 0.6rem; }
+    .timeline-date { font-size: 0.75rem; color: var(--pink); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.4rem; }
+    .timeline-card h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff; }
+    .timeline-card p { color: rgba(255,255,255,0.65); font-size: 0.9rem; line-height: 1.6; }
+
+    /* ── GALLERY ── */
+    .gallery-section { background: linear-gradient(180deg, #0d0010, #200040, #0d0010); }
+
+    .masonry-grid { columns: 3; column-gap: 1rem; }
+    @media(max-width: 768px) { .masonry-grid { columns: 2; } }
+    @media(max-width: 480px) { .masonry-grid { columns: 1; } }
+
+    .gallery-item {
+      break-inside: avoid; margin-bottom: 1rem;
+      border-radius: 16px; overflow: hidden;
+      cursor: pointer; position: relative;
+      background: var(--glass); border: 1px solid var(--glass-border);
+    }
+    .gallery-placeholder {
+      width: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1rem; gap: 0.5rem; min-height: 160px;
+    }
+    .gallery-placeholder-icon { font-size: 2.5rem; }
+    .gallery-placeholder-text { font-family: 'Dancing Script', cursive; font-size: 1rem; color: rgba(255,255,255,0.8); text-align: center; }
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+      opacity: 0; transition: opacity 0.3s;
+      display: flex; align-items: flex-end; padding: 1rem;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-item:hover { transform: scale(1.02); transition: transform 0.3s; }
+    .gallery-caption { color: #fff; font-family: 'Dancing Script', cursive; font-size: 1rem; }
+
+    .lightbox {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    .lightbox-content { position: relative; max-width: 90vw; max-height: 90vh; text-align: center; }
+    .lightbox-inner {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: 24px; padding: 3rem 2rem;
+      font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: #fff; max-width: 400px;
+    }
+    .lightbox-close {
+      position: absolute; top: -1rem; right: -1rem;
+      background: var(--deep-pink); border: none; border-radius: 50%;
+      width: 36px; height: 36px; cursor: pointer; color: #fff; font-size: 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── REASONS ── */
+    .reasons-section { background: linear-gradient(180deg, #0d0010, #1a0030, #0d0010); }
+
+    .reasons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+
+    .reason-card {
+      background: var(--glass); backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border); border-radius: 24px;
+      padding: 2rem 1.5rem; text-align: center;
+      opacity: 0; transform: translateY(40px) scale(0.95);
+      transition: all 0.6s cubic-bezier(0.23,1,0.32,1);
+    }
+    .reason-card.visible { opacity: 1; transform: translateY(0) scale(1); }
+    .reason-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px rgba(244,114,182,0.25); border-color: var(--pink); }
+    .reason-icon { font-size: 2.8rem; margin-bottom: 1rem; }
+    .reason-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 0.6rem; color: #fff; }
+    .reason-card p { color: rgba(255,255,255,0.6); font-size: 0.88rem; line-height: 1.6; }
+
+    /* ── COUNTER ── */
+    .counter-section {
+      background: linear-gradient(135deg, #1a0030, #2d0050, #1a0030);
+      padding: 5rem 2rem; text-align: center;
+    }
+    .counter-grid { display: flex; justify-content: center; flex-wrap: wrap; gap: 1.5rem; margin-top: 3rem; }
+    .counter-card {
+      background: var(--glass); backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border); border-radius: 24px;
+      padding: 2rem 2.5rem; min-width: 160px; position: relative; overflow: hidden;
+    }
+    .counter-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(244,114,182,0.1), rgba(167,139,250,0.1));
+      pointer-events: none;
+    }
+    .counter-number {
+      font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--pink), var(--lavender));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1;
+    }
+    .counter-label { margin-top: 0.5rem; color: rgba(255,255,255,0.6); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* ── DREAMS ── */
+    .dreams-section { background: linear-gradient(180deg, #0d0010, #200040, #0d0010); }
+    .dreams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; }
+    .dream-card {
+      background: var(--glass); backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border); border-radius: 24px;
+      padding: 2.5rem 1.5rem; text-align: center;
+      opacity: 0; transform: translateY(40px);
+      transition: all 0.7s cubic-bezier(0.23,1,0.32,1); position: relative; overflow: hidden;
+    }
+    .dream-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(244,114,182,0.05), rgba(167,139,250,0.05));
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .dream-card:hover::before { opacity: 1; }
+    .dream-card.visible { opacity: 1; transform: translateY(0); }
+    .dream-card:hover { transform: translateY(-8px); box-shadow: 0 30px 60px rgba(244,114,182,0.2); }
+    .dream-illustration { font-size: 4rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite; }
+    .dream-card h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.6rem; color: #fff; }
+    .dream-card p { color: rgba(255,255,255,0.6); font-size: 0.88rem; line-height: 1.6; }
+
+    /* ── LETTER ── */
+    .letter-section { background: linear-gradient(180deg, #0d0010, #1a0030); padding: 5rem 2rem; }
+    .letter-wrapper { max-width: 700px; margin: 0 auto; }
+    .letter-paper {
+      background: rgba(255,241,242,0.05); backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,200,200,0.2); border-radius: 24px; padding: 3rem 3.5rem; position: relative;
+    }
+    .letter-paper::before {
+      content: '"'; position: absolute; top: 1rem; left: 2rem;
+      font-size: 8rem; color: rgba(244,114,182,0.1);
+      font-family: 'Playfair Display', serif; line-height: 1;
+    }
+    .letter-paper p {
+      font-family: 'Dancing Script', cursive; font-size: 1.4rem;
+      line-height: 2; color: rgba(255,255,255,0.9); position: relative; z-index: 1; min-height: 200px;
+    }
+    .cursor-blink {
+      display: inline-block; width: 2px; height: 1.2em;
+      background: var(--pink); margin-left: 2px; vertical-align: text-bottom;
+      animation: blink 0.8s ease infinite;
+    }
+    .letter-signature { font-family: 'Dancing Script', cursive; font-size: 1.6rem; color: var(--pink); text-align: right; margin-top: 1.5rem; }
+
+    /* ── PROPOSAL ── */
+    .proposal-section {
+      background: radial-gradient(ellipse at 50% 50%, #3b0764 0%, #1e0030 50%, #0d0010 100%);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 5rem 2rem; text-align: center;
+    }
+    .proposal-inner { max-width: 600px; margin: 0 auto; }
+    .ring-animation { font-size: 5rem; animation: ringPulse 1.5s ease-in-out infinite; display: block; margin-bottom: 1.5rem; }
+    .proposal-inner h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      background: linear-gradient(135deg, #fff, var(--lavender), var(--pink));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem;
+    }
+    .proposal-inner p { color: rgba(255,255,255,0.7); font-size: 1.1rem; line-height: 1.7; margin-bottom: 2.5rem; }
+    .proposal-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-yes-proposal {
+      padding: 1rem 3rem; border-radius: 50px; border: none; cursor: pointer;
+      font-size: 1.1rem; font-weight: 700;
+      background: linear-gradient(135deg, #ec4899, #a855f7); color: #fff;
+      box-shadow: 0 0 40px rgba(236,72,153,0.6);
+      transition: all 0.3s; animation: pulse-glow 2s ease infinite;
+    }
+    .btn-yes-proposal:hover { transform: scale(1.1); box-shadow: 0 0 70px rgba(236,72,153,0.9); }
+    .btn-no-proposal {
+      padding: 1rem 3rem; border-radius: 50px; border: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer; font-size: 1rem; background: transparent; color: rgba(255,255,255,0.6);
+      transition: all 0.3s;
+    }
+    .btn-no-proposal:hover { border-color: var(--pink); color: var(--pink); }
+
+    /* ── YES FINAL SCREEN ── */
+    .yes-final-screen {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, #4c0080 0%, #1a0030 60%, #0d0010 100%);
+      z-index: 500;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+      animation: fadeIn 0.8s ease;
+    }
+    .yes-emoji { font-size: 6rem; animation: bounce 0.6s ease infinite alternate; }
+    .yes-final-screen h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      background: linear-gradient(135deg, #fff, var(--pink), var(--lavender));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 1rem 0;
+    }
+    .yes-final-screen p {
+      font-family: 'Dancing Script', cursive; font-size: 1.6rem;
+      color: rgba(255,255,255,0.8); max-width: 500px; line-height: 1.6;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(236,72,153,0.5); }
+      50%       { box-shadow: 0 0 60px rgba(236,72,153,0.8), 0 0 100px rgba(167,139,250,0.4); }
+    }
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 30px rgba(34,197,94,0.5); }
+      50%       { box-shadow: 0 0 60px rgba(34,197,94,0.85); }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; } 50% { opacity: 0; }
+    }
+    @keyframes ringPulse {
+      0%, 100% { transform: scale(1) rotate(-5deg); }
+      50%       { transform: scale(1.15) rotate(5deg); }
+    }
+    @keyframes bounce {
+      from { transform: translateY(0) scale(1); }
+      to   { transform: translateY(-20px) scale(1.1); }
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+      100% { transform: translateY(-100vh) rotate(30deg); opacity: 0; }
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      /* Landing */
+      .landing { padding: 1.5rem; }
+      .landing-hearts { font-size: 2.2rem; }
+      .landing h1 { margin-bottom: 2rem; }
+      .landing-buttons { flex-direction: column; align-items: center; gap: 1rem; }
+      .btn-yes-main, .btn-no-main { width: 100%; max-width: 280px; padding: 0.9rem 2rem; font-size: 1rem; }
+
+      /* Courtship */
+      .courtship-screen { padding: 1.5rem; }
+      .courtship-illustration svg { width: 240px; height: auto; }
+
+      /* Page 2 hero */
+      .page2-hero { min-height: 40vh; padding: 2.5rem 1.2rem; }
+      .page2-hero p { font-size: 0.95rem; }
+
+      /* Section inner */
+      .section-inner { padding: 3rem 1.2rem; }
+      .section-title { font-size: 1.7rem; }
+
+      /* Timeline */
+      .timeline::before { left: 1.2rem; }
+      .timeline-item, .timeline-item.right { padding-right: 0; padding-left: 3.2rem; justify-content: flex-start; transform: translateX(-30px); }
+      .timeline-dot { left: 1.2rem; }
+      .timeline-card { max-width: 100%; padding: 1.2rem; }
+      .timeline-card h3 { font-size: 1rem; }
+      .timeline-card p { font-size: 0.85rem; }
+
+      /* Gallery */
+      .masonry-grid { columns: 2; column-gap: 0.6rem; }
+
+      /* Reasons */
+      .reasons-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .reason-card { padding: 1.5rem 1rem; }
+
+      /* Counter */
+      .counter-section { padding: 3rem 1.2rem; }
+      .counter-card { padding: 1.5rem 1.5rem; min-width: 120px; }
+      .counter-number { font-size: 2.2rem; }
+      .counter-label { font-size: 0.7rem; }
+
+      /* Dreams */
+      .dreams-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .dream-card { padding: 1.8rem 1rem; }
+
+      /* Letter */
+      .letter-section { padding: 3rem 1.2rem; }
+      .letter-paper { padding: 1.8rem 1.2rem; }
+      .letter-paper p { font-size: 1.1rem; }
+
+      /* Proposal */
+      .proposal-section { padding: 3rem 1.2rem; }
+      .proposal-inner p { font-size: 0.95rem; }
+      .proposal-buttons { flex-direction: column; align-items: center; }
+      .btn-yes-proposal, .btn-no-proposal { width: 100%; max-width: 280px; }
+
+      /* Yes screen */
+      .yes-final-screen p { font-size: 1.2rem; }
+    }
+
+    @media (max-width: 480px) {
+      .masonry-grid { columns: 1; }
+      .reasons-grid { grid-template-columns: 1fr; }
+      .dreams-grid { grid-template-columns: 1fr; }
+      .counter-grid { gap: 0.8rem; }
+      .counter-card { min-width: 100px; padding: 1.2rem 1rem; }
+      .counter-number { font-size: 1.8rem; }
+      .letter-paper p { font-size: 1rem; line-height: 1.8; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particle-canvas"></canvas>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    /* ══════════════════════════════════════════
+       PARTICLE CANVAS
+    ══════════════════════════════════════════ */
+    function initParticles() {
+      const canvas = document.getElementById('particle-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let W, H;
+
+      const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const HEARTS = ['❤', '💕', '✨', '⭐', '💫', '🌸'];
+
+      class Particle {
+        constructor() { this.reset(true); }
+        reset(init = false) {
+          this.x = Math.random() * W;
+          this.y = init ? Math.random() * H : H + 20;
+          this.size = Math.random() * 16 + 8;
+          this.speedY = Math.random() * 0.6 + 0.2;
+          this.speedX = (Math.random() - 0.5) * 0.4;
+          this.opacity = Math.random() * 0.45 + 0.08;
+          this.char = HEARTS[Math.floor(Math.random() * HEARTS.length)];
+          this.rotation = Math.random() * Math.PI * 2;
+          this.rotSpeed = (Math.random() - 0.5) * 0.02;
+        }
+        update() {
+          this.y -= this.speedY; this.x += this.speedX; this.rotation += this.rotSpeed;
+          if (this.y < -30) this.reset();
+        }
+        draw() {
+          ctx.save(); ctx.globalAlpha = this.opacity;
+          ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
+          ctx.font = `${this.size}px serif`; ctx.textAlign = 'center';
+          ctx.fillText(this.char, 0, 0); ctx.restore();
+        }
+      }
+
+      for (let i = 0; i < 50; i++) particles.push(new Particle());
+      const animate = () => { ctx.clearRect(0, 0, W, H); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); };
+      animate();
+    }
+
+    /* ══════════════════════════════════════════
+       SCROLL OBSERVER HOOK
+    ══════════════════════════════════════════ */
+    function useScrollObserver(threshold = 0.15) {
+      const ref = useRef(null);
+      const [visible, setVisible] = useState(false);
+      useEffect(() => {
+        const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+        if (ref.current) obs.observe(ref.current);
+        return () => obs.disconnect();
+      }, []);
+      return [ref, visible];
+    }
+
+    /* ══════════════════════════════════════════
+       FLOATING HEARTS BURST
+    ══════════════════════════════════════════ */
+    function spawnHearts(count = 20) {
+      const emojis = ['💕', '❤️', '💍', '✨', '🌹', '💗', '🌸', '💖'];
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'floating-heart';
+          el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          el.style.left = Math.random() * 100 + 'vw';
+          el.style.bottom = '0';
+          el.style.fontSize = (Math.random() * 22 + 14) + 'px';
+          el.style.animationDuration = (Math.random() * 3 + 3) + 's';
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 6500);
+        }, i * 120);
+      }
+    }
+
+    /* ══════════════════════════════════════════
+       MUSIC TOGGLE
+    ══════════════════════════════════════════ */
+    function MusicToggle() {
+      const [playing, setPlaying] = useState(false);
+      const audioRef = useRef(null);
+
+      useEffect(() => {
+        // Using a free royalty-free romantic tune via Web Audio API oscillator as fallback
+        // since we can't rely on external audio files
+        audioRef.current = null;
+      }, []);
+
+      const toggle = () => {
+        if (!audioRef.current) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+          let time = ctx.currentTime;
+
+          const playMelody = () => {
+            notes.forEach((freq, i) => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.connect(gain); gain.connect(ctx.destination);
+              osc.frequency.value = freq;
+              osc.type = 'sine';
+              gain.gain.setValueAtTime(0, time + i * 0.4);
+              gain.gain.linearRampToValueAtTime(0.08, time + i * 0.4 + 0.05);
+              gain.gain.linearRampToValueAtTime(0, time + i * 0.4 + 0.35);
+              osc.start(time + i * 0.4);
+              osc.stop(time + i * 0.4 + 0.4);
+            });
+            time += notes.length * 0.4;
+          };
+
+          playMelody();
+          const id = setInterval(playMelody, notes.length * 400 + 200);
+          audioRef.current = { stop: () => clearInterval(id) };
+          setPlaying(true);
+        } else {
+          audioRef.current.stop();
+          audioRef.current = null;
+          setPlaying(false);
+        }
+      };
+
+      return (
+        <button className={`music-btn ${playing ? 'playing' : ''}`} onClick={toggle} title={playing ? 'Pause music' : 'Play music'}>
+          {playing ? '🎵' : '🎶'}
+        </button>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE 1 — LANDING ("Will you love me?")
+    ══════════════════════════════════════════ */
+    function LandingPage({ onYes }) {
+      const [noPos, setNoPos] = useState(null);
+      const [noLabel, setNoLabel] = useState('No 💔');
+      const noRef = useRef(null);
+
+      useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        // Place No button next to Yes button initially, then it becomes fixed on first hover
+        return () => { document.body.style.overflow = ''; };
+      }, []);
+
+      const moveNoButton = useCallback(() => {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        const bw = 140;
+        const bh = 52;
+        const margin = 20;
+        const x = margin + Math.random() * (W - bw - margin * 2);
+        const y = margin + Math.random() * (H - bh - margin * 2);
+        setNoPos({ left: x, top: y });
+        const labels = ['Nope 😅', 'Try again! 😂', 'Are you sure? 🤔', 'Think again! 💭', 'Never! 😜', 'Not a chance! 🙈'];
+        setNoLabel(labels[Math.floor(Math.random() * labels.length)]);
+      }, []);
+
+      return (
+        <div className="landing page-enter">
+          <span className="landing-hearts">💝</span>
+          <h1>Will you love me?</h1>
+          <div className="landing-buttons">
+            <button className="btn-yes-main" onClick={onYes}>
+              Yes, Forever 💚
+            </button>
+            {!noPos && (
+              <button
+                ref={noRef}
+                className="btn-no-main"
+                onMouseEnter={moveNoButton}
+                onTouchStart={moveNoButton}
+              >
+                {noLabel}
+              </button>
+            )}
+          </div>
+          {noPos && (
+            <button
+              ref={noRef}
+              className="btn-no-main floating"
+              style={{ left: noPos.left, top: noPos.top }}
+              onMouseEnter={moveNoButton}
+              onTouchStart={moveNoButton}
+            >
+              {noLabel}
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       COURTSHIP SVG ILLUSTRATION
+    ══════════════════════════════════════════ */
+    function CourtshipIllustration() {
+      return (
+        <svg width="320" height="220" viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg" style={{filter:'drop-shadow(0 0 30px rgba(244,114,182,0.5))'}}>
+          {/* Background glow */}
+          <ellipse cx="160" cy="200" rx="130" ry="18" fill="rgba(244,114,182,0.15)"/>
+
+          {/* === BOY (left character) === */}
+          {/* Body */}
+          <rect x="72" y="110" width="36" height="55" rx="10" fill="#a78bfa"/>
+          {/* Head */}
+          <circle cx="90" cy="95" r="22" fill="#fbbf24"/>
+          {/* Hair */}
+          <ellipse cx="90" cy="76" rx="22" ry="10" fill="#1e1b4b"/>
+          {/* Eyes */}
+          <circle cx="83" cy="93" r="3.5" fill="#1e1b4b"/>
+          <circle cx="97" cy="93" r="3.5" fill="#1e1b4b"/>
+          <circle cx="84.2" cy="91.8" r="1.2" fill="white"/>
+          <circle cx="98.2" cy="91.8" r="1.2" fill="white"/>
+          {/* Smile */}
+          <path d="M84 101 Q90 107 96 101" stroke="#1e1b4b" strokeWidth="2" strokeLinecap="round" fill="none"/>
+          {/* Blush */}
+          <ellipse cx="79" cy="100" rx="5" ry="3" fill="rgba(251,113,133,0.4)"/>
+          <ellipse cx="101" cy="100" rx="5" ry="3" fill="rgba(251,113,133,0.4)"/>
+          {/* Left arm (raised with flower) */}
+          <path d="M72 125 Q55 110 50 95" stroke="#a78bfa" strokeWidth="8" strokeLinecap="round" fill="none"/>
+          {/* Flower */}
+          <circle cx="50" cy="90" r="8" fill="#f472b6"/>
+          <circle cx="50" cy="90" r="4" fill="#fbbf24"/>
+          <path d="M42 83 Q44 78 50 82" stroke="#f472b6" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+          <path d="M58 83 Q56 78 50 82" stroke="#f472b6" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+          {/* Right arm */}
+          <path d="M108 125 Q122 135 128 145" stroke="#a78bfa" strokeWidth="8" strokeLinecap="round" fill="none"/>
+          {/* Legs */}
+          <rect x="74" y="158" width="14" height="30" rx="7" fill="#6d28d9"/>
+          <rect x="94" y="158" width="14" height="30" rx="7" fill="#6d28d9"/>
+          {/* Shoes */}
+          <ellipse cx="81" cy="190" rx="10" ry="6" fill="#1e1b4b"/>
+          <ellipse cx="101" cy="190" rx="10" ry="6" fill="#1e1b4b"/>
+
+          {/* === GIRL (right character) === */}
+          {/* Dress */}
+          <path d="M190 118 Q178 145 175 175 L230 175 Q227 145 210 118 Z" fill="#f472b6"/>
+          {/* Body top */}
+          <rect x="190" y="107" width="30" height="20" rx="6" fill="#f472b6"/>
+          {/* Head */}
+          <circle cx="205" cy="90" r="22" fill="#fbbf24"/>
+          {/* Hair */}
+          <ellipse cx="205" cy="76" rx="22" ry="11" fill="#7c3aed"/>
+          <ellipse cx="190" cy="90" rx="8" ry="18" fill="#7c3aed"/>
+          <ellipse cx="220" cy="90" rx="8" ry="18" fill="#7c3aed"/>
+          {/* Hair bow */}
+          <path d="M196 70 Q205 65 214 70 Q205 75 196 70Z" fill="#f472b6"/>
+          {/* Eyes */}
+          <circle cx="197" cy="88" r="3.5" fill="#1e1b4b"/>
+          <circle cx="213" cy="88" r="3.5" fill="#1e1b4b"/>
+          <circle cx="198.2" cy="86.8" r="1.2" fill="white"/>
+          <circle cx="214.2" cy="86.8" r="1.2" fill="white"/>
+          {/* Lashes */}
+          <path d="M194 85 L192 82M197 84 L196 81M200 84.5 L200 81" stroke="#1e1b4b" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M210 84 L208 81M213 84 L213 81M216 84.5 L218 81" stroke="#1e1b4b" strokeWidth="1.2" strokeLinecap="round"/>
+          {/* Smile */}
+          <path d="M199 97 Q205 103 211 97" stroke="#1e1b4b" strokeWidth="2" strokeLinecap="round" fill="none"/>
+          {/* Blush */}
+          <ellipse cx="193" cy="95" rx="5" ry="3" fill="rgba(251,113,133,0.5)"/>
+          <ellipse cx="217" cy="95" rx="5" ry="3" fill="rgba(251,113,133,0.5)"/>
+          {/* Arms */}
+          <path d="M190 120 Q175 130 168 140" stroke="#f472b6" strokeWidth="8" strokeLinecap="round" fill="none"/>
+          <path d="M220 120 Q235 110 240 100" stroke="#f472b6" strokeWidth="8" strokeLinecap="round" fill="none"/>
+          {/* Hand wave */}
+          <circle cx="241" cy="97" r="7" fill="#fbbf24"/>
+          {/* Legs under dress */}
+          <rect x="187" y="170" width="14" height="22" rx="7" fill="#f9a8d4"/>
+          <rect x="209" y="170" width="14" height="22" rx="7" fill="#f9a8d4"/>
+          {/* Shoes */}
+          <ellipse cx="194" cy="194" rx="10" ry="6" fill="#7c3aed"/>
+          <ellipse cx="216" cy="194" rx="10" ry="6" fill="#7c3aed"/>
+
+          {/* === HEARTS floating between === */}
+          <text x="148" y="85" fontSize="22" textAnchor="middle" className="heart-float-1">❤️</text>
+          <text x="160" y="60" fontSize="16" textAnchor="middle" opacity="0.8">💕</text>
+          <text x="172" y="80" fontSize="14" textAnchor="middle" opacity="0.7">✨</text>
+
+          {/* === GROUND === */}
+          <ellipse cx="155" cy="198" rx="100" ry="8" fill="rgba(167,139,250,0.12)"/>
+        </svg>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       COURTSHIP SCREEN (after Yes on Page 1)
+    ══════════════════════════════════════════ */
+    function CourtshipScreen({ onViewMore }) {
+      useEffect(() => { spawnHearts(25); }, []);
+
+      return (
+        <div className="courtship-screen page-enter">
+          <div className="courtship-illustration">
+            <CourtshipIllustration />
+          </div>
+          <h2>You made me the happiest person! 🥰</h2>
+          <p>
+            My heart is dancing! You just made this the most beautiful moment of my life.
+            I knew you were the one from the very first smile. 💕
+          </p>
+          <button className="btn-view-more" onClick={onViewMore}>
+            View More 💝
+          </button>
+        </div>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE 2 CONTENT — Timeline
+    ══════════════════════════════════════════ */
+    const timelineData = [
+      { emoji: '👀', date: 'The Beginning', title: 'When We First Met', text: 'That very first moment I saw you at pheonix and i was left just staring at you , something inside me knew you were going to change my life forever. but then College started, and Hope left too. Then, that day, you appeared in my Instagram suggestions, and the best days began.', side: 'left' },
+      { emoji: '💬', date: 'First Words', title: 'Our First Conversation', text: 'When we first talked properly at Waffle, it was the best moment. I finally met Juhi, whom I had absolutely no hope of meeting. And I proposed you very clearly because I want to talk to you forever at every up and down of my life.', side: 'right' },
+      { emoji: '🌹', date: 'A Date to Remember', title: 'Our First Date', text: "Our first 'best date ever' was amazing — you enjoyed it so much. I hope you never forget that date. I saw your happiness, you were so happy. And I was nervous, excited, and completely enchanted. You smiled and the whole world felt warmer.", side: 'left' },
+      { emoji: '🎉', date: 'Cherished Moments', title: 'Our Favorite Memories', text: "Our favorite memory is when we stayed together in the flat — making Maggi, dancing, and everything else we did; it was truly the best memory and day for us.", side: 'right' },
+
+    ];
+
+    function TimelineItem({ data, index }) {
+      const [ref, visible] = useScrollObserver(0.1);
+      return (
+        <div ref={ref} className={`timeline-item ${data.side === 'right' ? 'right' : ''} ${visible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 0.1}s` }}>
+          <div className="timeline-dot"></div>
+          <div className="timeline-card">
+            <div className="timeline-emoji">{data.emoji}</div>
+            <div className="timeline-date">{data.date}</div>
+            <h3>{data.title}</h3>
+            <p>{data.text}</p>
+          </div>
+        </div>
+      );
+    }
+
+    function Timeline() {
+      return (
+        <section className="timeline-section" id="journey">
+          <div className="section-inner">
+            <h2 className="section-title">Our Love Story 💕</h2>
+            <p className="section-sub">Every chapter of us, written in the stars</p>
+            <div className="timeline">
+              {timelineData.map((item, i) => <TimelineItem key={i} data={item} index={i} />)}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       GALLERY
+    ══════════════════════════════════════════ */
+    const galleryData = [
+      { src: '/images/image.jpeg', caption: 'Our beautiful memory 💕' },
+      { src: '/images/image 1.jpeg', caption: 'Together always 💖' },
+      { src: '/images/image 2.jpeg', caption: 'My favorite moments 🌸' },
+      { src: '/images/image 3.jpeg', caption: 'Us 💍' },
+      { src: '/images/image 4.jpeg', caption: 'Forever & always ✨' },
+    ];
+
+    function Gallery() {
+      const [lightbox, setLightbox] = useState(null);
+      return (
+        <section className="gallery-section" id="memories">
+          <div className="section-inner">
+            <h2 className="section-title">Memory Gallery 📸</h2>
+            <p className="section-sub">Frames of our beautiful story</p>
+            <div className="masonry-grid">
+              {galleryData.map((item, i) => (
+                <div key={i} className="gallery-item" onClick={() => setLightbox(item)}>
+                  <img src={item.src} alt={item.caption} style={{ width: '100%', display: 'block', borderRadius: '16px' }} />
+                  <div className="gallery-overlay"><span className="gallery-caption">💕 {item.caption}</span></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {lightbox && (
+            <div className="lightbox" onClick={() => setLightbox(null)}>
+              <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+                <img src={lightbox.src} alt={lightbox.caption} style={{ maxWidth: '90vw', maxHeight: '80vh', borderRadius: '16px', display: 'block' }} />
+                <p style={{ fontFamily: "'Dancing Script', cursive", fontSize: '1.2rem', color: '#fff', marginTop: '1rem', textAlign: 'center' }}>{lightbox.caption}</p>
+                <button className="lightbox-close" onClick={() => setLightbox(null)}>✕</button>
+              </div>
+            </div>
+          )}
+        </section>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       REASONS
+    ══════════════════════════════════════════ */
+    const reasons = [
+      { icon: '😊', title: 'Your Smile Brightens My Day', text: 'Every time you smile, my whole world lights up. Your joy is contagious and utterly beautiful.' },
+      { icon: '🤝', title: 'You Support Me Always', text: "In my highest highs and lowest lows, you're there. Your belief in me makes me believe in myself." },
+      { icon: '✨', title: 'You Make Moments Magical', text: 'With you, even the most ordinary Tuesday feels like a fairytale.' },
+      { icon: '☮️', title: 'You Are My Peace', text: 'In a chaotic world, you are my calm harbor. Being with you feels like coming home.' },
+      { icon: '💫', title: 'You Inspire Me Daily', text: 'Your passion, kindness, and strength inspire me to be a better person every single day.' },
+      { icon: '🌹', title: 'You Love Unconditionally', text: 'You accept me — all of me — with grace and love. That is the rarest and most precious gift.' },
+      { icon: '😂', title: 'You Make Me Laugh', text: 'You bring so much laughter and lightness into my life. Life is truly more fun with you around.' },
+      { icon: '🌟', title: 'You Are My Best Friend', text: "Beyond the love, you're the person I want to share everything with, my truest companion." },
+    ];
+
+    function ReasonCard({ data, index }) {
+      const [ref, visible] = useScrollObserver(0.1);
+      return (
+        <div ref={ref} className={`reason-card ${visible ? 'visible' : ''}`} style={{ transitionDelay: `${(index % 4) * 0.1}s` }}>
+          <div className="reason-icon">{data.icon}</div>
+          <h3>{data.title}</h3>
+          <p>{data.text}</p>
+        </div>
+      );
+    }
+
+    function Reasons() {
+      return (
+        <section className="reasons-section" id="reasons">
+          <div className="section-inner">
+            <h2 className="section-title">Why I Love You 💝</h2>
+            <p className="section-sub">Let me count the ways...</p>
+            <div className="reasons-grid">
+              {reasons.map((r, i) => <ReasonCard key={i} data={r} index={i} />)}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       COUNTER
+    ══════════════════════════════════════════ */
+    function Counter() {
+      const [counts, setCounts] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+      useEffect(() => {
+        const START = new Date('2024-10-29T00:00:00Z').getTime();
+        const tick = () => {
+          const totalSeconds = Math.floor((Date.now() - START) / 1000);
+          setCounts({
+            days: Math.floor(totalSeconds / 86400),
+            hours: Math.floor((totalSeconds % 86400) / 3600),
+            minutes: Math.floor((totalSeconds % 3600) / 60),
+            seconds: totalSeconds % 60,
+          });
+        };
+        tick();
+        const id = setInterval(tick, 1000);
+        return () => clearInterval(id);
+      }, []);
+
+      return (
+        <section className="counter-section" id="counter">
+          <h2 className="section-title">Time Together ⏳</h2>
+          <p className="section-sub">Every second with you is a treasure</p>
+          <div className="counter-grid">
+            {[['DAYS', counts.days], ['HOURS', counts.hours], ['MINUTES', counts.minutes], ['SECONDS', counts.seconds]].map(([label, value]) => (
+              <div key={label} className="counter-card">
+                <div className="counter-number">{String(value).padStart(2, '0')}</div>
+                <div className="counter-label">{label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       DREAMS
+    ══════════════════════════════════════════ */
+    const dreams = [
+      { icon: '✈️', title: 'Travel The World', text: "Every corner of this world is a new adventure waiting for us. Let's collect memories, not things." },
+      { icon: '🏡', title: 'Build Our Home', text: "A place that's ours — filled with laughter, love, and the warmth only we can create together." },
+      { icon: '🌠', title: 'Chase Our Dreams', text: "Your dreams are my dreams. Together, there's nothing we can't achieve." },
+      { icon: '👴👵', title: 'Grow Old Together', text: 'I want to hold your hand through every season of life and still look at you like it\'s the first time.' },
+    ];
+
+    function DreamCard({ data, index }) {
+      const [ref, visible] = useScrollObserver(0.1);
+      return (
+        <div ref={ref} className={`dream-card ${visible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 0.15}s` }}>
+          <div className="dream-illustration">{data.icon}</div>
+          <h3>{data.title}</h3>
+          <p>{data.text}</p>
+        </div>
+      );
+    }
+
+    function Dreams() {
+      return (
+        <section className="dreams-section" id="dreams">
+          <div className="section-inner">
+            <h2 className="section-title">Our Future Dreams 🔮</h2>
+            <p className="section-sub">A lifetime of adventures awaits us</p>
+            <div className="dreams-grid">
+              {dreams.map((d, i) => <DreamCard key={i} data={d} index={i} />)}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       LOVE LETTER
+    ══════════════════════════════════════════ */
+    const LETTER_TEXT = `From the day you entered my life, everything became brighter. You have brought happiness, support, laughter, and meaning to my journey. Every moment with you is a memory I cherish. Today, I want to ask you something that comes straight from my heart...`;
+
+    function Letter() {
+      const [ref, visible] = useScrollObserver(0.2);
+      const [displayed, setDisplayed] = useState('');
+      const [typing, setTyping] = useState(false);
+      const indexRef = useRef(0);
+
+      useEffect(() => {
+        if (!visible || typing) return;
+        setTyping(true);
+        const type = () => {
+          if (indexRef.current < LETTER_TEXT.length) {
+            setDisplayed(LETTER_TEXT.slice(0, indexRef.current + 1));
+            indexRef.current++;
+            setTimeout(type, 40);
+          }
+        };
+        setTimeout(type, 500);
+      }, [visible]);
+
+      return (
+        <section className="letter-section" id="letter">
+          <div className="letter-wrapper">
+            <h2 className="section-title">A Letter For You 💌</h2>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Written from the deepest part of my heart</p>
+            <div ref={ref} className="letter-paper">
+              <p>
+                {displayed}
+                {indexRef.current < LETTER_TEXT.length && <span className="cursor-blink"></span>}
+              </p>
+              {indexRef.current >= LETTER_TEXT.length && (
+                <div className="letter-signature">— With all my love 💕</div>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       PROPOSAL (end of Page 2)
+    ══════════════════════════════════════════ */
+    function Proposal({ onYes }) {
+      const handleYes = async () => {
+        spawnHearts(30);
+        try {
+          await fetch('/api/proposal-response', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answer: 'yes' }),
+          });
+        } catch (e) {}
+        onYes();
+      };
+
+      const handleNo = (e) => {
+        const btn = e.currentTarget;
+        const maxX = window.innerWidth - (btn.offsetWidth || 120) - 40;
+        const maxY = window.innerHeight - (btn.offsetHeight || 50) - 40;
+        btn.style.position = 'fixed';
+        btn.style.left = (20 + Math.random() * maxX) + 'px';
+        btn.style.top = (20 + Math.random() * maxY) + 'px';
+        btn.style.zIndex = '999';
+        btn.style.transition = 'left 0.4s cubic-bezier(0.34,1.56,0.64,1), top 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+        btn.textContent = ['Nope 😅', 'Try again! 😂', 'Are you sure? 🤔', 'Think again! 💭'][Math.floor(Math.random() * 4)];
+      };
+
+      return (
+        <section className="proposal-section" id="proposal">
+          <div className="proposal-inner">
+            <span className="ring-animation">💍</span>
+            <h2>Will You Be My Forever?</h2>
+            <p>
+              You are my best friend, my greatest adventure, and the love of my life.
+              I can't imagine a single day without you. I want to build a forever with you.
+              Will you make me the happiest person in the world?
+            </p>
+            <div className="proposal-buttons">
+              <button className="btn-yes-proposal" onClick={handleYes}>💍 Yes, Forever! 💍</button>
+              <button className="btn-no-proposal" onMouseEnter={handleNo} onTouchStart={handleNo}>No 😢</button>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       YES FINAL SCREEN
+    ══════════════════════════════════════════ */
+    function YesFinalScreen() {
+      useEffect(() => {
+        const id = setInterval(() => spawnHearts(15), 2500);
+        spawnHearts(30);
+        return () => clearInterval(id);
+      }, []);
+
+      return (
+        <div className="yes-final-screen">
+          <span className="yes-emoji">💍</span>
+          <h1>She Said YES! 🎉</h1>
+          <p>
+            This is the happiest moment of my life. You have made me the luckiest person in the
+            entire universe. I promise to love you, cherish you, and stand by you — every single
+            day, forever and always. 💕
+          </p>
+        </div>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE 2 — Full romantic content
+    ══════════════════════════════════════════ */
+    function Page2({ startDate }) {
+      const [proposalYes, setProposalYes] = useState(false);
+
+      if (proposalYes) return <YesFinalScreen />;
+
+      return (
+        <div className="page-enter">
+          <div className="page2-hero">
+            <h1>Our Beautiful Love Story ❤️</h1>
+            <p>Every chapter of us, written in the stars — scroll down to explore our world.</p>
+          </div>
+          <Timeline />
+          <Gallery />
+          <Reasons />
+          <Counter />
+          <Dreams />
+          <Letter />
+          <Proposal onYes={() => setProposalYes(true)} />
+        </div>
+      );
+    }
+
+    /* ══════════════════════════════════════════
+       APP ROOT
+    ══════════════════════════════════════════ */
+    function App() {
+      // screen: 'landing' | 'courtship' | 'page2'
+      const [screen, setScreen] = useState('landing');
+      const [startDate, setStartDate] = useState('2024-10-29T00:00:00Z');
+
+      useEffect(() => {
+        initParticles();
+        fetch('/api/relationship')
+          .then(r => r.json())
+          .then(d => setStartDate(d.startDate))
+          .catch(() => {});
+      }, []);
+
+      return (
+        <>
+          <MusicToggle />
+          {screen === 'landing' && <LandingPage onYes={() => setScreen('courtship')} />}
+          {screen === 'courtship' && <CourtshipScreen onViewMore={() => setScreen('page2')} />}
+          {screen === 'page2' && <Page2 startDate={startDate} />}
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
