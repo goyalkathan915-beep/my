@@ -18,7 +18,13 @@ async function sendTelegramNotification() {
   }
 }
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.jpeg') || filePath.endsWith('.jpg') || filePath.endsWith('.png')) {
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+  }
+}));
 app.use(express.json());
 
 // Relationship start date API
