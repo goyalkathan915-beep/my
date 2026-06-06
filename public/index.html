@@ -542,25 +542,28 @@
     /* ── CREDIT LINE ── */
     .credit-line {
       position: fixed;
-      bottom: 1rem;
+      bottom: 0.7rem;
       left: 50%;
       transform: translateX(-50%);
       z-index: 9998;
       pointer-events: none;
       text-align: center;
+      width: max-content;
+      max-width: calc(100vw - 2rem);
       animation: fadeUp 1.2s 1s ease both;
     }
     .credit-line span {
       display: inline-block;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.18);
       backdrop-filter: blur(12px);
-      padding: 0.38rem 1.1rem;
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.32rem 1rem;
       border-radius: 50px;
       font-family: 'Dancing Script', cursive;
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.55);
-      letter-spacing: 0.5px;
+      font-size: clamp(0.78rem, 3.2vw, 0.95rem);
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.4px;
       white-space: nowrap;
     }
     .credit-line span em {
